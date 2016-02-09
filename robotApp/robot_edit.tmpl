@@ -1,0 +1,223 @@
+<html>
+<head>
+<title>Edit Robot #(object.id)</title>
+{% load staticfiles %}
+<link rel="stylesheet" type="text/css" href="{% static 'robot/robot.css' %}" />
+<style type="text/css">
+	th,td {
+		border: 2px solid black;
+		border-collapse: collapse;
+	}
+</style>
+
+<script>
+	// create a parts inventory from the list of all parts that was added to the context
+ 	var part_id_array = new Array();
+ 	var part_desc_array = new Array();
+ 	var part_weight_array = new Array();
+ 	{% for part in parts %}
+ 		part_id_array.push("{{part.id}}");
+ 		part_desc_array.push("{{part.description}}");
+ 		part_weight_array.push("{{part.weight}}");
+ 	{% endfor %}
+ 	
+ 	var chassis_id_array = new Array();
+ 	var chassis_cap_array = new Array();
+ 	{% for chassis in chassis_list %}
+ 		chassis_id_array.push("{{chassis.id}}");
+ 		chassis_cap_array.push("{{chassis.weight_capacity}}");
+ 	{% endfor %}
+ 
+	function populate_attributes() {
+		chassis_script()
+		propulsion_script()
+		power_script()
+		weapon1_script()
+		weapon2_script()
+		armor_script()
+		total_weight()
+	}
+	 
+	function chassis_script() {
+		// this is different than the Django value, which only updates when the form saves
+		key = document.getElementById("id_chassis").value;
+		
+		// find index of correct part (id = key)
+		part_index = part_id_array.indexOf(key.toString());
+		part_desc = part_desc_array[part_index];
+		part_weight = part_weight_array[part_index];
+		document.getElementById("chassis_desc").innerHTML=part_desc;
+		document.getElementById("chassis_weight").innerHTML=part_weight;
+		
+		// do it all again for the chassis' weight capacity
+		// the id's of the chassis and part match, but the indices might not
+		chassis_index = chassis_id_array.indexOf(key.toString());
+		chassis_capacity = chassis_cap_array[chassis_index];
+		document.getElementById("chassis_capacity").innerHTML=chassis_capacity;
+		total_weight();
+	}
+	
+	function propulsion_script() {
+		// this is different than the Django value, which only updates when the form saves
+		key = document.getElementById("id_propulsion").value;
+		
+		// find index of correct part (id = key)
+		part_index = part_id_array.indexOf(key.toString());
+		part_desc = part_desc_array[part_index];
+		part_weight = part_weight_array[part_index];
+		document.getElementById("propulsion_desc").innerHTML=part_desc;
+		document.getElementById("propulsion_weight").innerHTML=part_weight;
+		total_weight();
+	}
+	
+	function power_script() {
+		// this is different than the Django value, which only updates when the form saves
+		key = document.getElementById("id_power").value;
+		
+		// find index of correct part (id = key)
+		part_index = part_id_array.indexOf(key.toString());
+		part_desc = part_desc_array[part_index];
+		part_weight = part_weight_array[part_index];
+		document.getElementById("power_desc").innerHTML=part_desc;
+		document.getElementById("power_weight").innerHTML=part_weight;
+		total_weight();
+	}
+	
+	function weapon1_script() {
+		// this is different than the Django value, which only updates when the form saves
+		key = document.getElementById("id_weapon1").value;
+		
+		// find index of correct part (id = key)
+		part_index = part_id_array.indexOf(key.toString());
+		part_desc = part_desc_array[part_index];
+		part_weight = part_weight_array[part_index];
+		document.getElementById("weapon1_desc").innerHTML=part_desc;
+		document.getElementById("weapon1_weight").innerHTML=part_weight;
+		total_weight();
+	}
+	
+	function weapon2_script() {
+		// this is different than the Django value, which only updates when the form saves
+		key = document.getElementById("id_weapon2").value;
+		
+		// find index of correct part (id = key)
+		part_index = part_id_array.indexOf(key.toString());
+		part_desc = part_desc_array[part_index];
+		part_weight = part_weight_array[part_index];
+		document.getElementById("weapon2_desc").innerHTML=part_desc;
+		document.getElementById("weapon2_weight").innerHTML=part_weight;
+		total_weight();
+	}
+	
+	function armor_script() {
+		// this is different than the Django value, which only updates when the form saves
+		key = document.getElementById("id_armor").value;
+		
+		// find index of correct part (id = key)
+		part_index = part_id_array.indexOf(key.toString());
+		part_desc = part_desc_array[part_index];
+		part_weight = part_weight_array[part_index];
+		document.getElementById("armor_desc").innerHTML=part_desc;
+		document.getElementById("armor_weight").innerHTML=part_weight;
+		total_weight();
+	}
+	
+	function total_weight() {
+		wc = Number(document.getElementById("chassis_weight").innerHTML);
+		wp = Number(document.getElementById("propulsion_weight").innerHTML);
+		we = Number(document.getElementById("power_weight").innerHTML);
+		ww1 = Number(document.getElementById("weapon1_weight").innerHTML);
+		ww2 = Number(document.getElementById("weapon2_weight").innerHTML);
+		wa = Number(document.getElementById("armor_weight").innerHTML);
+		total = wc + wp + we + ww1 + ww2 + wa;
+		document.getElementById("total_weight").innerHTML = total;
+		
+		capacity = Number(document.getElementById("chassis_capacity").innerHTML);
+		if (total > capacity) {
+			msg = '<p class="error">Your robot parts weigh too much!<br>';
+			msg = msg + "Choose a higher capacity chassis or lighter parts.</p>";
+			document.getElementById("capacity_error").innerHTML = msg;
+			document.getElementById("total_weight").style.color = "red";
+			document.getElementById("save_btn").disabled = true;
+		} else {
+			document.getElementById("capacity_error").innerHTML = "";
+			document.getElementById("save_btn").disabled = false;
+			document.getElementById("total_weight").style.color = "black";
+		}
+	}
+	
+</script>
+</head>
+<body onload="populate_attributes()">
+<h1>Robot Editor</h1>
+<form method="POST" action="/robot/{{action}}">{% csrf_token %}
+	<table style="width:100%">
+		<tr>Robot Name: {{form.name}}
+		<thead>
+			<tr>
+				<th colspan='2'>Part</th>
+				<th>Description</th>
+				<th>Weight</th>
+			</tr>
+		</thead>
+		
+		<tr>
+			<td>{{form.chassis.label}}:  {{form.chassis}}</td>
+			<td>Weight Capacity: <span id="chassis_capacity"></span></td>
+			<td class="description" id="chassis_desc">
+				{{form.chassis.value}}
+			</td>
+			<td id="chassis_weight"></td>
+		</tr>
+		<tr>
+			<td colspan='2'>{{form.propulsion.label}}:  {{form.propulsion}}</td>
+			<td class="description" id="propulsion_desc">
+				{{form.propulsion.value}}
+			</td>
+			<td id="propulsion_weight"></td>
+		</tr>
+		<tr>
+			<td colspan='2'>{{form.power.label}}:  {{form.power}}</td>
+			<td class="description" id="power_desc">
+				{{form.power.value}}
+			</td>
+			<td id="power_weight"></td>
+		</tr>
+		<tr>
+			<td colspan='2'>{{form.weapon1.label}}:  {{form.weapon1}}</td>
+			<td class="description" id="weapon1_desc">
+				{{form.weapon1.value}}
+			</td>
+			<td id="weapon1_weight"></td>
+		</tr>
+		<tr>
+			<td colspan='2'>{{form.weapon2.label}}:  {{form.weapon2}}</td>
+			<td class="description" id="weapon2_desc">
+				{{form.weapon2.value}}
+			</td>
+			<td id="weapon2_weight"></td>
+		</tr>
+		<tr>
+			<td colspan='2'>{{form.armor.label}}:  {{form.armor}}</td>
+			<td class="description" id="armor_desc">
+				{{form.armor.value}}
+			</td>
+			<td id="armor_weight"></td>
+		</tr>
+		<tr>
+			<td colspan=2></td> 
+			<td id='capacity_error'></td>
+			<td id='total_weight'></td>
+		</tr>
+		<tr>
+			<td colspan='4'>
+			<button type="submit" id="save_btn" class="save btn btn-default">Save</button>
+			</td>
+		</tr>
+		<tr>
+			<td colspan='3' id="testplace"></td>
+		</tr>
+	</table>
+</form>
+</body>
+</html>

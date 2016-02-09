@@ -1,0 +1,34 @@
+table {
+	border: 4px solid black;
+	border-collapse: collapse;
+	padding: 3px;
+}
+tr {
+	border: 2px solid black;
+	border-collapse: collapse;
+	padding: 3px;
+}
+th, td {
+	padding: 5px;
+}
+thead {
+	background-color: #ff8800;
+	color: #ffffff;
+}
+.description {
+	font-size: 14px;
+	font-weight: bold;
+	vertical-align:middle;
+	text-align:left;
+}
+.center {
+	text-align:center;
+}
+.thumbnail {
+	width: 100px;
+	text-align:center;
+}
+.error {
+	color:red;
+	font-weight:bold;
+}

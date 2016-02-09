@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+
+<html lang="en">
+	<head>
+		{% load staticfiles %}
+		<link rel="stylesheet" type="text/css" href="{% static 'robot/robot.css' %}" />
+		<title>My Robots</title>
+	</head>
+	
+	<body>
+		<h1>Your Robots</h1>
+		{% if robots %}
+		<table style="width:50%">
+			<thead>
+				<tr>
+					<th colspan="2">Robot</th>
+					<th>Actions</th>
+				</tr>
+			</thead>
+			{% for robot in robots %}
+			<tr>
+				<td class="thumbnail">
+					<img src="{% static "robot/80px-Robot_icon.jpg" %}" alt="robot picture"/>
+				</td>
+				<td class="description">{{robot.name}}</td>
+				<td class="center">
+					<p>
+						<a href="/robot/{{robot.id}}/edit">Edit</a>
+					</p>
+					<p>
+						<form method="POST" action="/robot/{{robot.id}}/delete">{% csrf_token %} 
+							<button type="submit" class="save btn btn-default">Delete</button>
+						</form>
+					</p>
+				</td>
+			</tr>
+			{% endfor %}
+		</table>
+		
+		{% else %}
+		<p> You have no robots! </p>
+		<p> Click on the 'New Robot' link to create one. </p>
+		{% endif %}
+		<a href="{% url 'add_robot' %}">New Robot</a>
+	</body>
+<html>
